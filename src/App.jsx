@@ -1,25 +1,15 @@
-import AboutAndEvents from "./components/AboutAndEvents"
-import Apply from "./components/Apply"
-import Features from "./components/Features"
-import Footer from "./components/Footer"
-import Hero from "./components/Hero"
-import Navbar from "./components/Navbar"
-import Stats from "./components/Stats"
-import TopBlackBar from "./components/TopBlackBar"
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import AppRoutes from './AppRoutes';
 
-const App = () => {
+function App() {
   return (
-    <>
-      <TopBlackBar />
-      <Navbar />
-      <Hero />
-      <Stats />
-      <Features />
-      <AboutAndEvents />
-      <Apply />
-      <Footer />
-    </>
-  )
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
