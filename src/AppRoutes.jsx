@@ -6,6 +6,7 @@ import PrivateRoute from './PrivateRoute';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Landing from './pages/Landing';
 import TopBar from './components/TopBar';
+import NotFound from './pages/NotFound';
 
 const AppRoutes = () => {
     return (
@@ -31,7 +32,7 @@ const AppRoutes = () => {
                         </PrivateRoute>
                     }
                 />
-                <Route path="*" element={<Navigate to="/login" />} />
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </>
     );
