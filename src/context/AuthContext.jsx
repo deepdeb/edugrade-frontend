@@ -27,9 +27,9 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = (token) => {
+  const login = async (token) => {
     localStorage.setItem('edugrade_token', token);
-    fetchUser();
+    await fetchUser();
   };
 
   const logout = () => {

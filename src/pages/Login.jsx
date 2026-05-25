@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import apiClient from "../api/client";
 import Button from "../components/Button";
 import { Eye, EyeOff } from "lucide-react";
+import Logo from '../components/Logo';
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ function Login() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      login(response.data.access_token);
+      await login(response.data.access_token);
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.detail || "Login failed.");
@@ -41,25 +42,22 @@ function Login() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Side - Branding (Hidden on small screens) */}
-      <div className="hidden lg:flex w-1/2 bg-white flex-col justify-center px-16">
-        <h5 className="text-sm tracking-widest text-yellow-500 font-medium mb-4">
-          WELCOME BACK
-        </h5>
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Continue Your Learning Journey
-        </h2>
-        <p className="text-gray-600 leading-relaxed max-w-md">
-          Log in to access your courses, track your progress, and connect with
-          your cohort.
-        </p>
+      <div className="hidden lg:flex w-1/2 bg-gray-900 text-white flex-col justify-center px-16">
+        <Logo />
+        <div className="mt-8">
+          <h2 className="text-4xl font-bold mb-4">Continue Your Learning Journey</h2>
+          <p className="text-gray-400 leading-relaxed max-w-md">
+            Log in to access your courses, track your progress, and connect with your cohort.
+          </p>
+        </div>
       </div>
 
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12">
         <div className="w-full max-w-md">
           {/* Mobile only Logo */}
-          <div className="lg:hidden text-center mb-8">
-            <h1 className="text-3xl font-bold text-blue-600">Edugrade</h1>
+          <div className="lg:hidden mb-8 inline-block bg-gray-900 px-4 py-2 rounded-lg">
+            <Logo />
           </div>
 
           <h3 className="text-2xl font-bold text-gray-800 mb-2">Sign In</h3>
@@ -114,7 +112,7 @@ function Login() {
 
             <Button
               title={loading ? "Signing In..." : "Sign In"}
-              onClick={handleSubmit}
+              type="submit"
               disabled={loading}
               className={"w-full"}
             />

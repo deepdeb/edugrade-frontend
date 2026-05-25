@@ -3,7 +3,7 @@ import React from "react";
 const Button = ({ title, onClick, disabled, className, type }) => {
   return (
     <button
-      type="button"
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className={`relative border border-yellow-500 font-bold px-6 py-3 rounded transition-colors group overflow-hidden cursor-pointer ${className}`}
