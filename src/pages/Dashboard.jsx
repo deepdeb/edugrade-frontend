@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../api/client';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
+import { toast } from 'sonner';
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [enrollingId, setEnrollingId] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -20,6 +24,20 @@ function Dashboard() {
 
     fetchCourses();
   }, []);
+
+
+  const handleEnroll = async (courseId) => {
+    setEnrollingId(courseId); // Set loading state for this specific button
+    try {
+      await apiClient.post(`/courses/${courseId}/enroll`);
+      navigate('/courses'); // Redirect to My Courses on success
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to enroll.");
+    } finally {
+      setEnrollingId(null); // Reset loading state
+    }
+  };
+
 
   return (
     <div>
@@ -42,8 +60,12 @@ function Dashboard() {
               <div className="p-5">
                 <h3 className="font-bold text-gray-800 text-lg mb-2 line-clamp-2">{course.title}</h3>
                 <p className="text-gray-500 text-sm line-clamp-3 mb-4">{course.description || 'No description provided.'}</p>
-                <button className="w-full bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-md hover:bg-yellow-600 transition duration-300">
-                  Enroll Now
+                <button
+                  onClick={() => handleEnroll(course.id)}
+                  disabled={enrollingId === course.id}
+                  className="w-full bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-md hover:bg-yellow-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {enrollingId === course.id ? 'Enrolling...' : 'Enroll Now'}
                 </button>
               </div>
             </div>
