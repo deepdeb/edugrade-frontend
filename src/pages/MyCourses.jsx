@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../api/client';
 import { BookOpen, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function MyCourses() {
   const [courses, setCourses] = useState([]);
@@ -36,21 +37,23 @@ function MyCourses() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <div key={course.id} className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition group overflow-hidden">
-              <div className="h-40 bg-gray-100 flex items-center justify-center">
-                <BookOpen className="w-12 h-12 text-gray-300 group-hover:text-yellow-500 transition" />
-              </div>
-              <div className="p-5">
-                <h3 className="font-bold text-gray-800 text-lg mb-2 line-clamp-2">{course.title}</h3>
-                <p className="text-gray-500 text-sm line-clamp-3 mb-4">{course.description || 'No description provided.'}</p>
-                
-                {/* Changed button state to show they are enrolled */}
-                <div className="flex items-center justify-center gap-2 text-green-600 font-semibold py-2.5 rounded-md bg-green-50 border border-green-100">
-                  <CheckCircle className="w-5 h-5" />
-                  Enrolled
+            <Link to={`/courses/${course.id}`} key={course.id}>
+              <div key={course.id} className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition group overflow-hidden">
+                <div className="h-40 bg-gray-100 flex items-center justify-center">
+                  <BookOpen className="w-12 h-12 text-gray-300 group-hover:text-yellow-500 transition" />
+                </div>
+                <div className="p-5">
+                  <h3 className="font-bold text-gray-800 text-lg mb-2 line-clamp-2">{course.title}</h3>
+                  <p className="text-gray-500 text-sm line-clamp-3 mb-4">{course.description || 'No description provided.'}</p>
+
+                  {/* Changed button state to show they are enrolled */}
+                  <div className="flex items-center justify-center gap-2 text-green-600 font-semibold py-2.5 rounded-md bg-green-50 border border-green-100">
+                    <CheckCircle className="w-5 h-5" />
+                    Enrolled
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

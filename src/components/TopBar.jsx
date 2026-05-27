@@ -22,7 +22,7 @@ const TopBar = () => {
     <nav className="bg-gray-900 text-white shadow-lg sticky top-0 z-50">
       <div className="px-6 lg:px-16 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          
+
           {/* Logo */}
           <Link to={user ? "/dashboard" : "/"} className="block">
             <Logo />
@@ -39,11 +39,14 @@ const TopBar = () => {
                 <Link to="/courses" className={`hover:text-yellow-400 transition-colors font-medium ${isActive('/courses')}`}>
                   My Courses
                 </Link>
-                
+                <Link to="/studio" className={`hover:text-yellow-400 transition-colors font-medium ${isActive('/studio')}`}>
+                  Studio
+                </Link>
+
                 <div className="flex items-center gap-4 border-l border-gray-700 pl-6">
                   <span className="text-sm text-gray-400">{user.email}</span>
-                  <button 
-                    onClick={handleLogout} 
+                  <button
+                    onClick={handleLogout}
                     className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
@@ -57,14 +60,14 @@ const TopBar = () => {
                 {/* Hide links completely if we are on the Landing Page */}
                 {location.pathname !== '/' && (
                   <div className="flex items-center gap-6">
-                    <Link 
-                      to="/login" 
+                    <Link
+                      to="/login"
                       className={`font-medium hover:text-yellow-400 transition-colors ${isActive('/login')}`}
                     >
                       Login
                     </Link>
-                    <Link 
-                      to="/register" 
+                    <Link
+                      to="/register"
                       className={`font-medium hover:text-yellow-400 transition-colors ${isActive('/register')}`}
                     >
                       Register
