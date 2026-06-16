@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import apiClient from '../api/client';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft, Globe, GlobeLock, LoaderCircle } from 'lucide-react';
 
 function Studio() {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [modules, setModules] = useState([]);
-  
+
   // Form states
   const [newTitle, setNewTitle] = useState('');
   const [newModTitle, setNewModTitle] = useState('');
   const [newModOrder, setNewModOrder] = useState(1);
-  
+
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const [toggleCourseId, setToggleCourseId] = useState(null);
 
   // Fetch all courses (including drafts) on load
   useEffect(() => {
@@ -49,6 +51,30 @@ function Studio() {
     setModules([]);
   };
 
+  // Handler: Toggle Publish
+  const handleTogglePublish = async (courseId) => {
+    setToggleCourseId(courseId);
+    try {
+      const response = await apiClient.patch(`/courses/studio/${courseId}/publish`);
+
+      const status = response.data.is_published ? 'published' : 'unpublished';
+      toast.success(`Course ${status}!`);
+
+      // Refresh the course list to show the new status
+      const listRes = await apiClient.get('/courses/studio');
+      setCourses(listRes.data);
+
+      // If we are currently inside this course's detail view, update it there too
+      if (selectedCourse && selectedCourse.id === courseId) {
+        setSelectedCourse(response.data);
+      }
+    } catch (err) {
+      toast.error("Failed to update course status.");
+    } finally {
+      setToggleCourseId(null);
+    }
+  };
+
   // Handler: Create Course
   const handleCreateCourse = async (e) => {
     e.preventDefault();
@@ -59,7 +85,7 @@ function Studio() {
       await apiClient.post('/courses/', { title: newTitle });
       toast.success(`"${newTitle}" created!`);
       setNewTitle('');
-      
+
       // Refresh list
       const response = await apiClient.get('/courses/studio');
       setCourses(response.data);
@@ -84,7 +110,7 @@ function Studio() {
       toast.success(`Module "${newModTitle}" added!`);
       setNewModTitle('');
       setNewModOrder(prev => prev + 1); // Increment for the next one
-      
+
       // Refresh modules list
       selectCourse(selectedCourse);
     } catch (err) {
@@ -104,12 +130,12 @@ function Studio() {
       {/* VIEW 1: Course List & Creation */}
       {!selectedCourse ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Create Course Form */}
           <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 h-fit lg:sticky lg:top-24">
             <h3 className="font-bold text-gray-700 mb-4">Create a New Course</h3>
             <form onSubmit={handleCreateCourse} className="space-y-4">
-              <input 
+              <input
                 type="text"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
@@ -117,8 +143,8 @@ function Studio() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
                 required
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={actionLoading}
                 className="w-full bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-md hover:bg-yellow-600 transition disabled:opacity-50 flex items-center justify-center gap-2"
               >
@@ -135,18 +161,35 @@ function Studio() {
               <p className="text-gray-400 text-sm">You haven't created any courses yet.</p>
             ) : (
               courses.map((course) => (
-                <div 
-                  key={course.id} 
-                  onClick={() => selectCourse(course)}
-                  className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex items-center justify-between cursor-pointer hover:shadow-md transition"
+                <div
+                  key={course.id}
+                  className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex items-center justify-between transition"
                 >
-                  <div>
+                  <div
+                    onClick={() => selectCourse(course)}
+                    className="flex-1 cursor-pointer hover:text-yellow-600 transition"
+                  >
                     <h4 className="font-semibold text-gray-800">{course.title}</h4>
                     <p className="text-xs text-gray-400 mt-1">
                       {course.is_published ? 'Published' : 'Draft'} • ID: {course.id}
                     </p>
                   </div>
-                  <span className="text-gray-300 text-xl">→</span>
+
+                  {/* Toggle Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevents opening the course detail
+                      handleTogglePublish(course.id);
+                    }}
+                    disabled={toggleCourseId === course.id}
+                    className={`ml-4 p-2 rounded-md transition cursor-pointer ${course.is_published
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      }`}
+                    title={course.is_published ? 'Unpublish' : 'Publish'}
+                  >
+                    {toggleCourseId === course.id ? <LoaderCircle className="w-5 h-5 text-yellow-500 animate-spin" /> : course.is_published ? <Globe className="w-5 h-5" /> : <GlobeLock className="w-5 h-5" />}
+                  </button>
                 </div>
               ))
             )}
@@ -161,12 +204,32 @@ function Studio() {
           </button>
 
           <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 mb-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-1">{selectedCourse.title}</h3>
+            <div className="flex items-center justify-between mb-1">
+              <div className='flex items-center gap-3'>
+                <h3 className="text-xl font-bold text-gray-800">{selectedCourse.title}</h3>
+                <span className={`text-xs font-medium px-3 py-1 rounded-full ${selectedCourse.is_published ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
+                  {selectedCourse.is_published ? 'Published' : 'Draft'}
+                </span>
+              </div>
+
+              {/* Toggle Button inside detail view */}
+
+              <button
+                onClick={() => handleTogglePublish(selectedCourse.id)}
+                disabled={toggleCourseId === selectedCourse.id}
+                className={`flex items-center gap-2 p-2 rounded-md text-sm font-medium transition cursor-pointer ${selectedCourse.is_published
+                  ? 'bg-gray-100 text-gray-500 hover:bg-gray-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                  }`}
+                title={selectedCourse.is_published ? 'Unpublish' : 'Publish'}
+              >
+                {toggleCourseId === selectedCourse.id ? <><LoaderCircle className={`w-4 h-4 ${selectedCourse.is_published ? 'text-gray-500' : 'text-green-500'} animate-spin`} /> </> : selectedCourse.is_published ? <GlobeLock className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+              </button>
+            </div>
             <p className="text-sm text-gray-400 mb-6">Manage the learning path for this course.</p>
 
             {/* Add Module Form */}
             <form onSubmit={handleCreateModule} className="flex flex-col sm:flex-row gap-3 mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <input 
+              <input
                 type="text"
                 value={newModTitle}
                 onChange={(e) => setNewModTitle(e.target.value)}
@@ -174,7 +237,7 @@ function Studio() {
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm"
                 required
               />
-              <input 
+              <input
                 type="number"
                 value={newModOrder}
                 onChange={(e) => setNewModOrder(parseInt(e.target.value))}
@@ -183,8 +246,8 @@ function Studio() {
                 required
                 min="1"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={actionLoading}
                 className="bg-yellow-500 text-gray-900 font-semibold px-6 py-2 rounded-md hover:bg-yellow-600 transition disabled:opacity-50 flex items-center gap-2 text-sm whitespace-nowrap"
               >
