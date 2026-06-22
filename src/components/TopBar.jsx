@@ -39,9 +39,11 @@ const TopBar = () => {
                 <Link to="/courses" className={`hover:text-yellow-400 transition-colors font-medium ${isActive('/courses')}`}>
                   My Courses
                 </Link>
-                <Link to="/studio" className={`hover:text-yellow-400 transition-colors font-medium ${isActive('/studio')}`}>
-                  Studio
-                </Link>
+                {user?.roles?.includes('admin') && (
+                  <Link to="/studio" className={`hover:text-yellow-400 transition-colors font-medium ${isActive('/studio')}`}>
+                    Studio
+                  </Link>
+                )}
 
                 <div className="flex items-center gap-4 border-l border-gray-700 pl-6">
                   <span className="text-sm text-gray-400">{user.email}</span>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import apiClient from '../api/client';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext(null);
 
@@ -18,8 +19,23 @@ export function AuthProvider({ children }) {
 
   const fetchUser = async () => {
     try {
+      const token = localStorage.getItem('edugrade_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      // Decode token to get roles instantly
+      const decoded = jwtDecode(token);
+
+      // Fetch full profile from backend
       const response = await apiClient.get('/auth/me');
-      setUser(response.data);
+
+      // Merge backend data with token roles
+      setUser({
+        ...response.data,
+        roles: decoded.roles || []
+      });
     } catch (error) {
       localStorage.removeItem('edugrade_token');
     } finally {

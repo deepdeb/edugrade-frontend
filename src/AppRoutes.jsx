@@ -40,7 +40,7 @@ const AppRoutes = () => {
                 <Route
                     path="/studio"
                     element={
-                        <PrivateRoute>
+                        <PrivateRoute roles={['admin', 'instructor']}>
                             <div className="min-h-screen bg-gray-50 flex flex-col">
                                 <main className="flex-1 p-6 lg:p-8">
                                     <div className="max-w-6xl mx-auto">
